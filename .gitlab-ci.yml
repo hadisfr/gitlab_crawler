@@ -25,10 +25,3 @@ test:
   script:
     - pip install flake8
     - flake8 --ignore=E501 --exclude=.svn,CVS,.bzr,.hg,.git,__pycache__,.tox,.eggs,*.egg,.env
-
-run:
-  stage: run
-  script:
-    - ./__main__.py
-  only:
-    - master
