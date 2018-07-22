@@ -28,5 +28,8 @@
         "url": {
             "all_projects": "https://gitlab.com/api/v4/projects/"
         }
+    },
+    "phases": {
+        "get_all_projects": true
     }
 }
