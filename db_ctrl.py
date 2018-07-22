@@ -45,6 +45,7 @@ class DBCtrl(object):
         return cursor
 
     def _open_db(self):
+        """Connect to database."""
         cursor = self._get_cursor()
         try:
             cursor.execute('SET NAMES %s' % self.encoding)
@@ -69,6 +70,7 @@ class DBCtrl(object):
             cursor.close()
 
     def _prepare_tables(self):
+        """Crate missing tables in datatbase."""
         cursor = self._get_cursor()
         try:
             cursor.execute("show tables;")
@@ -85,6 +87,7 @@ class DBCtrl(object):
             cursor.close()
 
     def add_row(self, table, values):
+        """Add new row to a table of database."""
         cursor = self._get_cursor()
         try:
             cursor.execute(

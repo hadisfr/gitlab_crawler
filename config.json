@@ -21,5 +21,11 @@
                 "state": "enum('NEW', 'TO_SEE', 'SEEN') default 'NEW'"
             }
         }
+    },
+    "API": {
+        "token": "",
+        "url": {
+            "all_projects": "https://gitlab.com/api/v4/projects/"
+        }
     }
 }
