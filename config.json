@@ -22,8 +22,9 @@
             }
         }
     },
-    "API": {
+    "api": {
         "token": "",
+        "per_page": 100,
         "url": {
             "all_projects": "https://gitlab.com/api/v4/projects/"
         }

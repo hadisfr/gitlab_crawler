@@ -1,22 +1,25 @@
 #!/usr/bin/env python3
 
 from db_ctrl import DBCtrl
+from gitlab_ctrl import GitlabCtrl
 
 
 def main():
     db_ctrl = DBCtrl()
-    db_ctrl.add_row('projects', {
-        "id": 7555106,
-        "path": "pretrain_tc",
-        "owner_path": "nct_tso_public",
-        "owner_type": "user",
-        "display_name": "Pretrain TC",
-        "description": "PyTorch implementation of temporal coherence-based self-supervised learning for laparoscopic workflow analysis.",
-        "avatar": None,
-        "stars": 0,
-        "forks": 0,
-        "last_activity": "2018-07-19T15:51:44.369Z"[:-1]
-    })
+    gitlab = GitlabCtrl()
+    gitlab.process_all_projects(
+        lambda project: db_ctrl.add_row('projects', {
+            "id": project['id'],
+            "path": project['path'],
+            "owner_path": project['path_with_namespace'].split('/')[0],
+            "owner_type": project.get('namespace', {}).get('kind', 'user'),
+            "display_name": project['name'],
+            "description": project['description'],
+            "avatar": project['avatar_url'],
+            "stars": project['star_count'],
+            "forks": project['forks_count'],
+            "last_activity": project['last_activity_at'][:-1]
+        }), {'search': "tehran-thesis"})
 
 
 if __name__ == '__main__':
