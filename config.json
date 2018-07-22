@@ -1,0 +1,25 @@
+{
+    "db": {
+        "name": "gitlab_crawler",
+        "host": "localhost",
+        "user": {
+            "username": "glc",
+            "password": "p@ss"
+        },
+        "tables": {
+            "projects": {
+                "id": "bigint not null primary key",
+                "path": "text not null",
+                "owner_path": "text not null",
+                "owner_type": "enum('user', 'group') not null",
+                "display_name": "text",
+                "description": "text",
+                "avatar": "text",
+                "stars": "int not null",
+                "forks": "int not null",
+                "last_activity": "datetime",
+                "state": "enum('NEW', 'TO_SEE', 'SEEN') default 'NEW'"
+            }
+        }
+    }
+}
