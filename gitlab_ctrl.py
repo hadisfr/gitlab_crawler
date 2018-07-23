@@ -50,7 +50,7 @@ class GitlabCtrl(object):
             try:
                 callback(json.loads(res.text))
             except Exception as ex:
-                print("Callback Error: %s\n\033[31m%s\0330m\n" % (ex, format_exc()), file=stderr)
+                print("Callback Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr)
             if not res.headers.get('X-Next-Page', None):
                 break
             query['page'] += 1

@@ -41,7 +41,7 @@ class DBCtrl(object):
             try:
                 cursor = self.connection.cursor()
             except MySQLdb.Error as ex:
-                print("Cursor Error: %s\n\033[31m%s\0330m\n" % (ex, format_exc()), file=stderr)
+                print("Cursor Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr)
         return cursor
 
     def _open_db(self):
@@ -97,6 +97,6 @@ class DBCtrl(object):
             self.connection.commit()
         except Exception as ex:
             self.connection.rollback()
-            print("Insert Error: %s\n\033[31m%s\0330m\n" % (ex, format_exc()), file=stderr)
+            print("Insert Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr)
         finally:
             cursor.close()
