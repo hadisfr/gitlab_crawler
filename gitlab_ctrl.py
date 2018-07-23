@@ -45,7 +45,7 @@ class GitlabCtrl(object):
             res = self.call_api(url, query, auth)
             total_pages = int(res.headers.get('X-Total-Pages', 0))
             print("GET %s  %s" % (url, [
-                "", "%d from %d (%.2f%%)" % (query['per_page'], total_pages, query['per_page'] / total_pages)
+                "", "%d from %d (%.2f%%)" % (query['page'], total_pages, query['page'] / total_pages)
             ][total_pages != 0]), file=stderr)
             try:
                 callback(json.loads(res.text))
