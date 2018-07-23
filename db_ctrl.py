@@ -52,9 +52,6 @@ class DBCtrl(object):
         """Connect to database."""
         cursor = self._get_cursor()
         try:
-            cursor.execute('SET NAMES %s' % self.encoding)
-            cursor.execute('SET CHARACTER SET %s' % self.encoding)
-            cursor.execute('SET character_set_connection=%s' % self.encoding)
             cursor.execute("use %s;" % (self.config['name']))
             self.connection.commit()
         except MySQLdb.OperationalError as ex:
