@@ -44,7 +44,7 @@ class GitlabCtrl(object):
         while True:
             res = self.call_api(url, query, auth)
             total_pages = int(res.headers.get('X-Total-Pages', 0))
-            print("GET %s  %s" % (url, [
+            print("\033[96mGET %s \033[0m %s" % (url, [
                 "", "%d from %d (%.2f%%)" % (query['page'], total_pages, query['page'] / total_pages)
             ][total_pages != 0]), file=stderr)
             try:
