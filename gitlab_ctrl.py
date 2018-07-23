@@ -43,6 +43,10 @@ class GitlabCtrl(object):
         query['page'] = 1
         while True:
             res = self.call_api(url, query, auth)
+            total_pages = int(res.headers.get('X-Total-Pages', 0))
+            print("GET %s  %s" % (url, [
+                "", "%d from %d (%.2f%%)" % (query['per_page'], total_pages, query['per_page'] / total_pages)
+            ][total_pages != 0]), file=stderr)
             try:
                 callback(json.loads(res.text))
             except Exception as ex:
