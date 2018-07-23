@@ -25,6 +25,7 @@ class DBCtrl(object):
                 host=self.config['host'],
                 use_unicode=True
             )
+            self.connection.set_character_set(self.encoding)
         except MySQLdb.OperationalError as ex:
             print("DB Connection Error: %s\n" % ex, file=stderr)
             exit(1)
@@ -40,6 +41,9 @@ class DBCtrl(object):
         while not cursor:
             try:
                 cursor = self.connection.cursor()
+                cursor.execute('SET NAMES %s;' % self.encoding)
+                cursor.execute('SET CHARACTER SET %s;' % self.encoding)
+                cursor.execute('SET character_set_connection=%s;' % self.encoding)
             except MySQLdb.Error as ex:
                 print("Cursor Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr)
         return cursor
