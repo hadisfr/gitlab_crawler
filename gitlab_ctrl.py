@@ -35,7 +35,7 @@ class GitlabCtrl(object):
                     pass
             else:
                 print("API returned %d for GET %s\n%s" % (
-                    res.status_code, url, json.dumps(json.loads(res.text), indent=4)), file=stderr)
+                    res.status_code, url, res.text), file=stderr)
 
     def single_process(self, url, callback, query={}, auth=True):
         """Call GitLab API and call callback on whole content of every page."""
