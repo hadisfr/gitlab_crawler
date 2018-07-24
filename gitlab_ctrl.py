@@ -25,7 +25,11 @@ class GitlabCtrl(object):
         if auth:
             headers['Private-Token'] = self.config['token']
         while True:
-            res = requests.get(url, query, headers=headers)
+            try:
+                res = requests.get(url, query, headers=headers, timeout=30)
+            except requests.exceptions.Timeout:
+                print("API timed out.", file=stderr)
+                continue
             if res.status_code is 200:
                 return res
             elif res.status_code is 429:
