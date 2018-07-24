@@ -46,7 +46,7 @@ class GitlabCtrl(object):
             total_pages = int(res.headers.get('X-Total-Pages', 0))
             print("\033[96mGET %s \033[0m %s" % (url, [
                 "", "%d from %d (%.2f%%)" % (query['page'], total_pages, query['page'] / total_pages)
-            ][total_pages != 0]), file=stderr)
+            ][total_pages != 0]), file=stderr, flush=True)
             try:
                 callback(json.loads(res.text))
             except Exception as ex:
