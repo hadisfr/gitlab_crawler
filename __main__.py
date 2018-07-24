@@ -2,7 +2,6 @@
 
 import json
 from sys import stderr
-from traceback import format_exc
 from pathlib import Path
 
 from db_ctrl import DBCtrl
