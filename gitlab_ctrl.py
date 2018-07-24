@@ -32,7 +32,7 @@ class GitlabCtrl(object):
                 continue
             if res.status_code is 200:
                 return res
-            elif res.status_code in {429, 502}:
+            elif res.status_code is 429 or not res.headers.get('RateLimit-Remaining', 1):
                 print("API Rate limit exceeded. (%s)\n%s" % (res.status_code, res.text), file=stderr, flush=True)
                 while datetime.timestamp(datetime.now()) < res.headers.get(
                         'RateLimit-Reset', datetime.timestamp(datetime.now())):
