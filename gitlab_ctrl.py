@@ -26,14 +26,14 @@ class GitlabCtrl(object):
             headers['Private-Token'] = self.config['token']
         while True:
             try:
-                res = requests.get(url, query, headers=headers, timeout=30)
+                res = requests.get(url, query, headers=headers, timeout=45)
             except requests.exceptions.Timeout:
                 print("API timed out.", file=stderr, flush=True)
                 continue
             if res.status_code is 200:
                 return res
-            elif res.status_code is 429:
-                print("API Rate limit exceeded.", file=stderr, flush=True)
+            elif res.status_code in {429, 502}:
+                print("API Rate limit exceeded. (%s)\n%s" % (res.status_code, res.text), file=stderr, flush=True)
                 while datetime.timestamp(datetime.now()) < res.headers.get(
                         'RateLimit-Reset', datetime.timestamp(datetime.now())):
                     pass
