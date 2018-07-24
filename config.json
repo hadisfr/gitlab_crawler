@@ -31,5 +31,8 @@
     },
     "phases": {
         "get_all_projects": true
+    },
+    "default_status": {
+        "get_all_projects_start_page": 1
     }
 }

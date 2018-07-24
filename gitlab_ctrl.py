@@ -44,7 +44,8 @@ class GitlabCtrl(object):
     def single_process(self, url, callback, query={}, auth=True):
         """Call GitLab API and call callback on whole content of every page."""
         query['per_page'] = self.config['per_page']
-        query['page'] = 1
+        if 'page' not in query:
+            query['page'] = 1
         while True:
             res = self.call_api(url, query, auth)
             total_pages = int(res.headers.get('X-Total-Pages', 0))
@@ -63,6 +64,7 @@ class GitlabCtrl(object):
         """Call GitLab API and call callback on every part of content of every page."""
         self.single_process(url, lambda x: list(map(callback, x)), query, auth)
 
-    def process_all_projects(self, callback, query={}, auth=False):
+    def process_all_projects(self, callback, query={}, auth=False, start_page=1):
         """Call callback on all projects with optional filters in `query`."""
+        query['page'] = start_page
         self.multiple_process(self.config['url']['all_projects'], callback, query, auth)
