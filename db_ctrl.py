@@ -16,7 +16,7 @@ class DBCtrl(object):
             with open(self.config_file) as f:
                 self.config = json.load(f)['db']
         except Exception as ex:
-            print("Config file (%s) error: %s\n" % (self.config_file, ex), file=stderr)
+            print("Config file (%s) error: %s\n" % (self.config_file, ex), file=stderr, flush=True)
             exit(1)
         try:
             self.connection = MySQLdb.connect(
@@ -27,13 +27,13 @@ class DBCtrl(object):
             )
             self.connection.set_character_set(self.encoding)
         except MySQLdb.OperationalError as ex:
-            print("DB Connection Error: %s\n" % ex, file=stderr)
+            print("DB Connection Error: %s\n" % ex, file=stderr, flush=True)
             exit(1)
         try:
             self._open_db()
             self._prepare_tables()
         except MySQLdb.OperationalError as ex:
-            print("DB Preparation Error: %s\n" % ex, file=stderr)
+            print("DB Preparation Error: %s\n" % ex, file=stderr, flush=True)
             exit(1)
 
     def _get_cursor(self):
@@ -45,7 +45,7 @@ class DBCtrl(object):
                 cursor.execute('SET CHARACTER SET %s;' % self.encoding)
                 cursor.execute('SET character_set_connection=%s;' % self.encoding)
             except MySQLdb.Error as ex:
-                print("Cursor Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr)
+                print("Cursor Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr, flush=True)
         return cursor
 
     def _open_db(self):
@@ -57,7 +57,7 @@ class DBCtrl(object):
         except MySQLdb.OperationalError as ex:
             if ex.args[0] == self.DATABASE_NOT_FOUND:
                 self.connection.rollback()
-                print("creating database %s" + self.config['name'], file=stderr)
+                print("creating database %s" + self.config['name'], file=stderr, flush=True)
                 cursor.execute("create database %s character set %s;", (self.config['name'], self.encoding))
                 cursor.execute("use %s;" % (self.config['name']))
                 self.connection.commit()
@@ -98,6 +98,6 @@ class DBCtrl(object):
             self.connection.commit()
         except Exception as ex:
             self.connection.rollback()
-            print("Insert Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr)
+            print("Insert Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr, flush=True)
         finally:
             cursor.close()

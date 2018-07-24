@@ -17,7 +17,7 @@ def main():
         with open(status_file) as f:
             status = json.load(f)
     except Exception as ex:
-        print("Status file (%s) error: %s\nUse default status.\n" % (status_file, ex), file=stderr)
+        print("Status file (%s) error: %s\nUse default status.\n" % (status_file, ex), file=stderr, flush=True)
     try:
         try:
             with open(config_file) as f:
@@ -26,7 +26,7 @@ def main():
                 if not status:
                     status = conf['default_status']
         except Exception as ex:
-            print("Config file (%s) error: %s\n" % (config_file, ex), file=stderr)
+            print("Config file (%s) error: %s\n" % (config_file, ex), file=stderr, flush=True)
             exit(1)
 
         db_ctrl = DBCtrl()
@@ -55,7 +55,7 @@ def main():
             with open(status_file, 'w') as f:
                 print(json.dumps(status, indent=4), file=f)
         except Exception as ex:
-            print("Saving status file (%s) error: %s\n" % (status_file, ex), file=stderr)
+            print("Saving status file (%s) error: %s\n" % (status_file, ex), file=stderr, flush=True)
 
 
 if __name__ == '__main__':
