@@ -7,11 +7,9 @@ from pathlib import Path
 from db_ctrl import DBCtrl
 from gitlab_ctrl import GitlabCtrl
 
-config_file = 'config.json'
-status_file = str(Path.home()) + '/.glc'
 
-
-def main():
+def read_configs(config_file, status_file):
+    """Read global configurations and status"""
     status = {}
     try:
         with open(status_file) as f:
@@ -19,16 +17,22 @@ def main():
     except Exception as ex:
         print("Status file (%s) error: %s\nUse default status.\n" % (status_file, ex), file=stderr, flush=True)
     try:
-        try:
-            with open(config_file) as f:
-                conf = json.load(f)
-                phases = conf['phases']
-                if not status:
-                    status = conf['default_status']
-        except Exception as ex:
-            print("Config file (%s) error: %s\n" % (config_file, ex), file=stderr, flush=True)
-            exit(1)
+        with open(config_file) as f:
+            conf = json.load(f)
+            phases = conf['phases']
+            if not status:
+                status = conf['default_status']
+    except Exception as ex:
+        print("Config file (%s) error: %s\n" % (config_file, ex), file=stderr, flush=True)
+        exit(1)
+    return (status, phases)
 
+
+def main():
+    status_file = str(Path.home()) + '/.glc'
+
+    try:
+        (status, phases) = read_configs('config.json', status_file)
         db_ctrl = DBCtrl()
         gitlab = GitlabCtrl()
 
@@ -45,6 +49,7 @@ def main():
                     "forks": project['forks_count'],
                     "last_activity": project['last_activity_at'][:-1]
                 }), {'archived': True}, start_page=status['get_all_projects_start_page'])
+
     except KeyboardInterrupt as ex:
         print("KeyboardInterrupt")
     except ...:
