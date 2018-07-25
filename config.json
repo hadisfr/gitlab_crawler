@@ -12,7 +12,6 @@
                 "path": "text not null",
                 "owner_path": "text not null",
                 "owner_type": "enum('user', 'group') not null",
-                "display_name": "text",
                 "description": "text",
                 "avatar": "text",
                 "stars": "int not null",
