@@ -94,8 +94,11 @@ class DBCtrl(object):
         """Add new row to a table of database."""
         cursor = self._get_cursor()
         try:
-            cursor.execute(
-                "insert into %s(%s) values(%s);" % (table, ", ".join(values.keys()), ", ".join(["%s" for value in values])),
+            res = cursor.execute(
+                "insert into %s(%s) values(%s);" % (
+                    table, ", ".join(values.keys()),
+                    ", ".join(["%s" for value in values])
+                ),
                 values.values()
             )
             self.connection.commit()
@@ -107,6 +110,7 @@ class DBCtrl(object):
                 print("Insert Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr, flush=True)
         finally:
             cursor.close()
+            return res
 
     def get_rows(self, table, values, rerais=False):
         """Get array of rows from a table of database."""
@@ -116,7 +120,8 @@ class DBCtrl(object):
             cursor.execute(
                 "select * from %s%s;" %
                 (table, ["", " where %s" %
-                 " and ".join(["%s='%s'" % (key, value) for (key, value) in values.items()])][values is not None and values != {}])
+                 " and ".join(["%s=%%s" % key for key in values.keys()])][values is not None and values != {}]),
+                tuple(value for value in values.values())
             )
             self.connection.commit()
             res = cursor.fetchall()
