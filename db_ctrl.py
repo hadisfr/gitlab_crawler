@@ -134,3 +134,29 @@ class DBCtrl(object):
         finally:
             cursor.close()
             return res
+
+    def update_rows(self, table, conditions, values, rerais=False):
+        """Update rows matching conditions in a table of database."""
+        cursor = self._get_cursor()
+        try:
+            res = cursor.execute(
+                "update %s set %s%s;" % (
+                    table,
+                    ", ".join(["%s=%%s" % key for key in values.keys()]),
+                    [
+                        "",
+                        " where %s" % " and ".join(["%s=%%s" % key for key in conditions.keys()])
+                    ][conditions is not None and conditions != {}]
+                ),
+                tuple(value for value in values.values()) + tuple(value for value in conditions.values())
+            )
+            self.connection.commit()
+        except Exception as ex:
+            self.connection.rollback()
+            if rerais:
+                raise
+            else:
+                print("Update Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr, flush=True)
+        finally:
+            cursor.close()
+            return res
