@@ -3,6 +3,7 @@ from sys import stderr
 from traceback import format_exc
 
 import MySQLdb
+from MySQLdb.cursors import DictCursor
 
 
 class DBCtrl(object):
@@ -24,6 +25,7 @@ class DBCtrl(object):
                 user=self.config['user']['username'],
                 passwd=self.config['user']['password'],
                 host=self.config['host'],
+                cursorclass=DictCursor,
                 use_unicode=True
             )
             self.connection.set_character_set(self.encoding)
@@ -76,7 +78,7 @@ class DBCtrl(object):
         cursor = self._get_cursor()
         try:
             cursor.execute("show tables;")
-            found_tables = set([i[0] for i in cursor.fetchall()])
+            found_tables = {list(x.values())[0] for x in cursor.fetchall()}
             for group_of_tables in self.config['tables']:
                 missing_tables = set(group_of_tables.keys()).difference(found_tables)
                 for table in missing_tables:

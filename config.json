@@ -6,32 +6,66 @@
             "username": "glc",
             "password": "p@ss"
         },
-        "tables": {
-            "projects": {
-                "id": "bigint not null primary key",
-                "path": "text not null",
-                "owner_path": "text not null",
-                "owner_type": "enum('user', 'group') not null",
-                "description": "text",
-                "avatar": "text",
-                "stars": "int not null",
-                "forks": "int not null",
-                "last_activity": "datetime",
-                "state": "enum('NEW', 'TO_SEE', 'SEEN') default 'NEW'"
+        "tables": [
+            {
+                "projects": {
+                    "id": "bigint not null primary key",
+                    "path": "text not null",
+                    "owner_path": "text not null",
+                    "description": "text",
+                    "avatar": "text",
+                    "stars": "int",
+                    "forks": "int",
+                    "last_activity": "datetime",
+                    "members_processed": "boolean default false"
+                },
+                "users": {
+                    "id": "bigint not null primary key",
+                    "name": "text not null",
+                    "username": "text not null",
+                    "avatar": "text",
+                    "contributions_processed": "boolean default false"
+                }
+            },
+            {
+                "membership": {
+                    "user": "bigint not null",
+                    "constraint FK_membership_user": "foreign key (user) references users(id)",
+                    "project": "bigint not null",
+                    "constraint FK_membership_project": "foreign key (project) references projects(id)",
+                    "constraint PK_membership": "primary key(user, project)"
+                },
+                "contributions": {
+                    "user": "bigint not null",
+                    "constraint FK_contribution_user": "foreign key (user) references users(id)",
+                    "project": "bigint not null",
+                    "constraint FK_contribution_project": "foreign key (project) references projects(id)",
+                    "constraint PK_contribution": "primary key(user, project)"
+                }
             }
-        }
+        ]
     },
     "api": {
         "token": "",
         "per_page": 100,
         "url": {
+            "project_members": "https://gitlab.com/api/v4/projects/%d/users",
+            "user_projects": "https://gitlab.com/api/v4/users/%d/projects",
             "all_projects": "https://gitlab.com/api/v4/projects/"
         }
     },
     "phases": {
-        "get_all_projects": true
+        "contributions": true,
+        "get_all_projects": false
     },
     "default_status": {
+        "stage": {
+            "users": [],
+            "projects": [
+                13083
+            ]
+        },
+        "on_projects": true,
         "get_all_projects_start_page": 1
     }
 }

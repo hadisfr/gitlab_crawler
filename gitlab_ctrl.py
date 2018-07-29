@@ -2,6 +2,7 @@ import json
 from sys import stderr
 from traceback import format_exc
 from datetime import datetime
+from functools import partial
 
 import requests
 
@@ -41,7 +42,7 @@ class GitlabCtrl(object):
                 print("API returned %d for GET %s\n%s" % (
                     res.status_code, url, res.text), file=stderr, flush=True)
 
-    def single_process(self, url, callback, query={}, auth=True):
+    def single_process(self, url, callback, query={}, auth=True, *args, **kwds):
         """Call GitLab API and call callback on whole content of every page."""
         query['per_page'] = self.config['per_page']
         if 'page' not in query:
@@ -53,18 +54,34 @@ class GitlabCtrl(object):
                 "", "%d from %d (%.2f%%)" % (query['page'], total_pages, query['page'] / total_pages * 100)
             ][total_pages != 0]), file=stderr, flush=True)
             try:
-                callback(json.loads(res.text))
+                callback(json.loads(res.text), *args, **kwds)
             except Exception as ex:
                 print("Callback Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr, flush=True)
             if not res.headers.get('X-Next-Page', None):
                 break
             query['page'] += 1
 
-    def multiple_process(self, url, callback, query={}, auth=True):
+    def multiple_process(self, url, callback, query={}, auth=True, *args, **kwds):
         """Call GitLab API and call callback on every part of content of every page."""
-        self.single_process(url, lambda x: list(map(callback, x)), query, auth)
+        self.single_process(url, lambda x, *args, **kwds: list(map(partial(callback, *args, **kwds), x)),
+                            query, auth, *args, **kwds)
 
-    def process_all_projects(self, callback, query={}, auth=False, start_page=1):
+    def process_all_projects(self, callback, query={}, auth=False, start_page=1, *args, **kwds):
         """Call callback on all projects with optional filters in `query`."""
         query['page'] = start_page
-        self.multiple_process(self.config['url']['all_projects'], callback, query, auth)
+        self.multiple_process(self.config['url']['all_projects'], callback, query, auth, *args, **kwds)
+
+    def process_project_members(self, callback, project_id, query={}, auth=False, *args, **kwds):
+        """Call callback on every member of project found by id"""
+        self.multiple_process(self.config['url']['project_members'] % project_id, callback, query, auth,
+                              *args, **kwds, project=project_id)
+
+    def process_user_owned_projects(self, callback, user_id, query={}, auth=False, *args, **kwds):
+        """Call callback on every project owned by user found by id"""
+        self.multiple_process(self.config['url']['user_projects'] % user_id, callback, query, auth,
+                              *args, **kwds, user=user_id)
+
+    def process_user_contributed_to_projects(self, callback, user_id, auth=False, *args, **kwds):
+        """Call callable on every project user found by id has contributed to"""
+        pass
+        # TODO: make json and call callable on every project
