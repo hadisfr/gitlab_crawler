@@ -107,3 +107,25 @@ class DBCtrl(object):
                 print("Insert Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr, flush=True)
         finally:
             cursor.close()
+
+    def get_rows(self, table, values, rerais=False):
+        """Get array of rows from a table of database."""
+        res = tuple()
+        cursor = self._get_cursor()
+        try:
+            cursor.execute(
+                "select * from %s%s;" %
+                (table, ["", " where %s" %
+                 " and ".join(["%s='%s'" % (key, value) for (key, value) in values.items()])][values is not None and values != {}])
+            )
+            self.connection.commit()
+            res = cursor.fetchall()
+        except Exception as ex:
+            self.connection.rollback()
+            if rerais:
+                raise
+            else:
+                print("Select Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr, flush=True)
+        finally:
+            cursor.close()
+            return res
