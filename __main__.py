@@ -168,8 +168,8 @@ class Crawler(object):
                             self.gitlab.process_user_owned_projects(self._add_user_owned_project, user)
                             self.gitlab.process_user_contributed_to_projects(
                                 self._add_user_contributed_to_project,
-                                user,
-                                user['username']
+                                user['username'],
+                                user=user
                             )
                             self.db_ctrl.update_rows('users', {"id": user}, {"contributions_processed": True})
                         self.status['stage']['users'] = set()

@@ -1,4 +1,5 @@
 import json
+import re
 from sys import stderr
 from traceback import format_exc
 from datetime import datetime
@@ -18,6 +19,7 @@ class GitlabCtrl(object):
         except Exception as ex:
             print("Config file (%s) error: %s\n" % (self.config_file, ex), file=stderr, flush=True)
             exit(1)
+        self.project_path_from_dom_regex = re.compile('<a class="project" href="([^"]*)">')
 
     def call_api(self, url, query={}, auth=True):
         """Call GitLab API and return raw result."""
@@ -82,7 +84,17 @@ class GitlabCtrl(object):
         self.multiple_process(self.config['url']['user_projects'] % user_id, callback, query, auth,
                               *args, **kwds, user=user_id)
 
-    def process_user_contributed_to_projects(self, callback, userid, username, auth=False, *args, **kwds):
+    def process_user_contributed_to_projects(self, callback, username, auth=False, *args, **kwds):
         """Call callable on every project user has contributed to"""
-        pass
-        # TODO: make json and call callable on every project
+        try:
+            for project_full_path in self.project_path_from_dom_regex.findall(
+                json.loads(self.call_api(self.config['url']['user_contributions'] % username).text)['html']
+            ):
+                parsed_path = project_full_path.split('/')
+                project = {
+                    "owner_path": parsed_path[1],
+                    "path": parsed_path[2]
+                }
+                callback(project, *args, **kwds)
+        except Exception as ex:
+            print("Callback Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr, flush=True)
