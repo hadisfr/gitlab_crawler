@@ -59,7 +59,7 @@
         ]
     },
     "api": {
-        "token": "",
+        "token": "DUzYFUYm_7yfv_DtkdsV",
         "per_page": 100,
         "url": {
             "project_members": "https://gitlab.com/api/v4/projects/%d/users",
@@ -70,7 +70,7 @@
     },
     "phases": {
         "contributions": false,
-        "get_all_projects": true
+        "get_all_projects": false
     },
     "default_status": {
         "stage": {
