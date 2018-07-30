@@ -106,6 +106,14 @@ venv.bak/
 .mypy_cache/
 
 
+###Linux###
+
+*~
+
+# KDE directory preferences
+.directory
+
+
 ###OSX###
 
 .DS_Store
