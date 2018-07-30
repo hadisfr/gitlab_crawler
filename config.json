@@ -12,10 +12,23 @@
                     "id": "bigint not null primary key",
                     "path": "text not null",
                     "owner_path": "text not null",
+                    "display_name": "text",
                     "description": "text",
                     "avatar": "text",
                     "stars": "int",
                     "forks": "int",
+                    "commit_count": "bigint",
+                    "storage_size": "bigint",
+                    "repository_size": "bigint",
+                    "lfs_objects_size": "bigint",
+                    "archived": "boolean",
+                    "issues_enabled": "boolean",
+                    "merge_requests_enabled": "boolean",
+                    "wiki_enabled": "boolean",
+                    "jobs_enabled": "boolean",
+                    "snippets_enabled": "boolean",
+                    "ci_config_path": "text",
+                    "created_at": "datetime",
                     "last_activity": "datetime",
                     "members_processed": "boolean default false"
                 },
@@ -51,12 +64,13 @@
         "url": {
             "project_members": "https://gitlab.com/api/v4/projects/%d/users",
             "user_projects": "https://gitlab.com/api/v4/users/%d/projects",
+            "user_contributions": "https://gitlab.com/users/%s/contributed.json",
             "all_projects": "https://gitlab.com/api/v4/projects/"
         }
     },
     "phases": {
-        "contributions": true,
-        "get_all_projects": false
+        "contributions": false,
+        "get_all_projects": true
     },
     "default_status": {
         "stage": {

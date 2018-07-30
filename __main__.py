@@ -40,7 +40,7 @@ class Crawler(object):
 
     def _add_project_to_db(self, project):
         """Add data of a project to database."""
-        self.db_ctrl.add_row("projects", {
+        data = {
             "id": project['id'],
             "path": project['path'],
             "owner_path": project['path_with_namespace'].split("/")[0],
@@ -49,24 +49,44 @@ class Crawler(object):
             "avatar": project['avatar_url'],
             "stars": project['star_count'],
             "forks": project['forks_count'],
+            "created_at": project['created_at'][:-1],
             "last_activity": project['last_activity_at'][:-1]
+        }
+        if 'statistics' in project:
+            data['commit_count'] = project['statistics']['commit_count']
+            data['storage_size'] = project['statistics']['storage_size']
+            data['repository_size'] = project['statistics']['repository_size']
+            data['lfs_objects_size'] = project['statistics']['lfs_objects_size']
+        if 'archived' in project:
+            data['archived'] = project['archived']
+        if 'issues_enabled' in project:
+            data['issues_enabled'] = project['issues_enabled']
+        if 'merge_requests_enabled' in project:
+            data['merge_requests_enabled'] = project['merge_requests_enabled']
+        if 'wiki_enabled' in project:
+            data['wiki_enabled'] = project['wiki_enabled']
+        if 'jobs_enabled' in project:
+            data['jobs_enabled'] = project['jobs_enabled']
+        if 'snippets_enabled' in project:
+            data['snippets_enabled'] = project['snippets_enabled']
+        if 'ci_config_path' in project:
+            data['ci_config_path'] = project['ci_config_path']
+        self.db_ctrl.add_row("projects", data)
+
+    def _add_user_to_db(self, user):
+        """Add data of a user to database."""
+        self.db_ctrl.add_row("users", {
+            "id": user['id'],
+            "name": user['name'],
+            "username": user['username'],
+            "avatar": user['avatar_url']
         })
 
     def _add_project_members(self, user, project):
         """Add project members and membership relations to database and stage"""
-        project_from_db = self.db_ctrl.get_rows("projects", {"id": project})
-        if not len(project_from_db):
-            raise ValueError('Project with id %d not found in db.' % project)
-        elif project_from_db[0]['members_processed']:
-            return
         user_from_db = self.db_ctrl.get_rows("users", {"id": user['id']})
         if not len(user_from_db):
-            self.db_ctrl.add_row("users", {
-                "id": user['id'],
-                "name": user['name'],
-                "username": user['username'],
-                "avatar": user['avatar_url']
-            })
+            self._add_user_to_db(user)
             user_from_db = (user,)
             user_from_db[0]['contributions_processed'] = False
         user_from_db = user_from_db[0]
@@ -79,24 +99,9 @@ class Crawler(object):
 
     def _add_user_owned_project(self, project, user):
         """Add user projects and contribuition relations to database and stage"""
-        user_from_db = self.db_ctrl.get_rows("users", {"id": user})
-        if not len(user_from_db):
-            raise ValueError('User with id %d not found in db.' % user)
-        elif user_from_db[0]['contributions_processed']:
-            return
         project_from_db = self.db_ctrl.get_rows("projects", {"id": project['id']})
         if not len(project_from_db):
-            self.db_ctrl.add_row("projects", {
-                "id": project['id'],
-                "path": project['path'],
-                "owner_path": project['path_with_namespace'].split("/")[0],
-                "display_name": project['name'],
-                "description": project['description'],
-                "avatar": project['avatar_url'],
-                "stars": project['star_count'],
-                "forks": project['forks_count'],
-                "last_activity": project['last_activity_at'][:-1]
-            })
+            self._add_project_to_db(project)
             project_from_db = (project,)
             project_from_db[0]['members_processed'] = False
         project_from_db = project_from_db[0]
@@ -109,11 +114,6 @@ class Crawler(object):
 
     def _add_user_contributed_to_project(self, project, user):
         """Add user projects and contribuition relations to database and stage"""
-        user_from_db = self.db_ctrl.get_rows("users", {"id": user})
-        if not len(user_from_db):
-            raise ValueError('User with id %d not found in db.' % user)
-        elif user_from_db[0]['contributions_processed']:
-            return
         project_from_db = self.db_ctrl.get_rows(
             "projects",
             {"owner_path": project['owner_path'], "path": project['path']}
@@ -135,6 +135,7 @@ class Crawler(object):
                 self.gitlab.process_all_projects(
                     self._add_project_to_db,
                     {"archived": True},
+                    auth=True,
                     start_page=self.status['get_all_projects_start_page']
                 )
             if self.phases.get("contributions", False):
@@ -144,6 +145,11 @@ class Crawler(object):
                             break
                         print("\033[95mProjects on Stage\033[0m: %s" % self.status['stage']['projects'])
                         for project in self.status['stage']['projects']:
+                            project_from_db = self.db_ctrl.get_rows("projects", {"id": project})
+                            if not len(project_from_db):
+                                print('Project with id %d not found in db.' % project, file=stderr)
+                            elif project_from_db[0]['members_processed']:
+                                continue
                             print("\033[95mProject\033[0m: %s" % project)
                             self.gitlab.process_project_members(self._add_project_members, project)
                             self.db_ctrl.update_rows('projects', {"id": project}, {"members_processed": True})
@@ -154,8 +160,17 @@ class Crawler(object):
                         print("\033[95mUsers on Stage\033[0m: %s" % self.status['stage']['users'])
                         for user in self.status['stage']['users']:
                             print("\033[95mUser\033[0m: %s" % user)
+                            user_from_db = self.db_ctrl.get_rows("users", {"id": user})
+                            if not len(user_from_db):
+                                raise ValueError('User with id %d not found in db.' % user)
+                            elif user_from_db[0]['contributions_processed']:
+                                continue
                             self.gitlab.process_user_owned_projects(self._add_user_owned_project, user)
-                            self.gitlab.process_user_contributed_to_projects(self._add_user_contributed_to_project, user)
+                            self.gitlab.process_user_contributed_to_projects(
+                                self._add_user_contributed_to_project,
+                                user,
+                                user['username']
+                            )
                             self.db_ctrl.update_rows('users', {"id": user}, {"contributions_processed": True})
                         self.status['stage']['users'] = set()
                     self.status['on_projects'] = not self.status['on_projects']

@@ -68,6 +68,7 @@ class GitlabCtrl(object):
 
     def process_all_projects(self, callback, query={}, auth=False, start_page=1, *args, **kwds):
         """Call callback on all projects with optional filters in `query`."""
+        query['statistics'] = True
         query['page'] = start_page
         self.multiple_process(self.config['url']['all_projects'], callback, query, auth, *args, **kwds)
 
@@ -81,7 +82,7 @@ class GitlabCtrl(object):
         self.multiple_process(self.config['url']['user_projects'] % user_id, callback, query, auth,
                               *args, **kwds, user=user_id)
 
-    def process_user_contributed_to_projects(self, callback, user_id, auth=False, *args, **kwds):
-        """Call callable on every project user found by id has contributed to"""
+    def process_user_contributed_to_projects(self, callback, userid, username, auth=False, *args, **kwds):
+        """Call callable on every project user has contributed to"""
         pass
         # TODO: make json and call callable on every project
