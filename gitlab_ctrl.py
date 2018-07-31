@@ -92,8 +92,8 @@ class GitlabCtrl(object):
             ):
                 parsed_path = project_full_path.split('/')
                 project = {
-                    "owner_path": parsed_path[1],
-                    "path": parsed_path[2]
+                    "owner_path": parsed_path[1:-1],
+                    "path": parsed_path[-1]
                 }
                 callback(project, *args, **kwds)
         except Exception as ex:

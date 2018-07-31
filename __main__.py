@@ -43,7 +43,7 @@ class Crawler(object):
         data = {
             "id": project['id'],
             "path": project['path'],
-            "owner_path": project['path_with_namespace'].split("/")[0],
+            "owner_path": '/'.join(project['path_with_namespace'].split("/")[0:-1]),
             "display_name": project['name'],
             "description": project['description'],
             "avatar": project['avatar_url'],
