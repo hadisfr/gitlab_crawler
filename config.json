@@ -17,6 +17,7 @@
                     "avatar": "text",
                     "stars": "int",
                     "forks": "int",
+                    "owned_by_user": "boolean",
                     "commit_count": "bigint",
                     "storage_size": "bigint",
                     "repository_size": "bigint",

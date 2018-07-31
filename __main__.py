@@ -49,6 +49,7 @@ class Crawler(object):
             "avatar": project['avatar_url'],
             "stars": project['star_count'],
             "forks": project['forks_count'],
+            "owned_by_user": 'owner' in project,
             "created_at": project['created_at'][:-1],
             "last_activity": project['last_activity_at'][:-1]
         }
