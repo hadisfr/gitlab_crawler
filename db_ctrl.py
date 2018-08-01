@@ -96,6 +96,7 @@ class DBCtrl(object):
     def add_row(self, table, values, rerais=False):
         """Add new row to a table of database."""
         cursor = self._get_cursor()
+        res = 0
         try:
             res = cursor.execute(
                 "insert into %s(%s) values(%s);" % (
@@ -141,6 +142,7 @@ class DBCtrl(object):
     def update_rows(self, table, conditions, values, rerais=False):
         """Update rows matching conditions in a table of database."""
         cursor = self._get_cursor()
+        res = 0
         try:
             res = cursor.execute(
                 "update %s set %s%s;" % (
