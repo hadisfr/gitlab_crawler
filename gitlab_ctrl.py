@@ -3,7 +3,6 @@ import re
 from sys import stderr
 from traceback import format_exc
 from datetime import datetime
-from functools import partial
 
 import requests
 
