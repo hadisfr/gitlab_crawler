@@ -10,6 +10,7 @@ import requests
 class GitlabCtrl(object):
     """GitLab Controller"""
     config_file = 'config.json'
+    MAX_USER_USER_CONTRIBUTED_TO_PROJECTS = 20
 
     def __init__(self):
         try:
@@ -91,9 +92,12 @@ class GitlabCtrl(object):
     def process_user_contributed_to_projects(self, callback, username, auth=False, *args, **kwds):
         """Call callable on every project user has contributed to"""
         try:
-            for project_full_path in self.project_path_from_dom_regex.findall(
+            projects = self.project_path_from_dom_regex.findall(
                 json.loads(self.call_api(self.config['url']['user_contributions'] % username).text)['html']
-            ):
+            )
+            if len(projects) >= self.MAX_USER_USER_CONTRIBUTED_TO_PROJECTS:
+                print("\033[95mWarning\033[0m: Possible incomplete contributed to projects list fo user %s" % username)
+            for project_full_path in projects:
                 parsed_path = project_full_path.split('/')
                 project = {
                     "owner_path": '/'.join(parsed_path[1:-1]),
