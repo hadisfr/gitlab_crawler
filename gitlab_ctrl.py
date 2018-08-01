@@ -92,7 +92,7 @@ class GitlabCtrl(object):
             ):
                 parsed_path = project_full_path.split('/')
                 project = {
-                    "owner_path": parsed_path[1:-1],
+                    "owner_path": '/'.join(parsed_path[1:-1]),
                     "path": parsed_path[-1]
                 }
                 callback(project, *args, **kwds)
