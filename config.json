@@ -1,4 +1,8 @@
 {
+    "phases": {
+        "contributions": false,
+        "get_all_projects": false
+    },
     "db": {
         "name": "gitlab_crawler",
         "host": "localhost",
@@ -68,10 +72,6 @@
             "user_contributions": "https://gitlab.com/users/%s/contributed.json",
             "all_projects": "https://gitlab.com/api/v4/projects/"
         }
-    },
-    "phases": {
-        "contributions": false,
-        "get_all_projects": false
     },
     "default_status": {
         "stage": {
