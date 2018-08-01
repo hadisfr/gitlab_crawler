@@ -12,6 +12,7 @@ class DBCtrl(object):
     encoding = "utf8mb4"
     DATABASE_NOT_FOUND = 1049
     DUPLICATE_ENTRY = 1062
+    SERVER_HAS_GONE = 2006
 
     def __init__(self):
         try:

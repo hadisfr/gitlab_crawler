@@ -4,6 +4,8 @@ import json
 from sys import stderr
 from pathlib import Path
 
+from MySQLdb import OperationalError as MySQLdbOperationalError
+
 from db_ctrl import DBCtrl
 from gitlab_ctrl import GitlabCtrl
 
@@ -72,16 +74,32 @@ class Crawler(object):
             data['snippets_enabled'] = project['snippets_enabled']
         if 'ci_config_path' in project:
             data['ci_config_path'] = project['ci_config_path']
-        self.db_ctrl.add_row("projects", data)
+        while True:
+            try:
+                self.db_ctrl.add_row("projects", data)
+            except MySQLdbOperationalError as ex:
+                if len(ex.args) > 0 and ex[0] == self.db_ctrl.SERVER_HAS_GONE:
+                    continue
+                else:
+                    break
+            break
 
     def _add_user_to_db(self, user):
         """Add data of a user to database."""
-        self.db_ctrl.add_row("users", {
-            "id": user['id'],
-            "name": user['name'],
-            "username": user['username'],
-            "avatar": user['avatar_url']
-        })
+        while True:
+            try:
+                self.db_ctrl.add_row("users", {
+                    "id": user['id'],
+                    "name": user['name'],
+                    "username": user['username'],
+                    "avatar": user['avatar_url']
+                })
+            except MySQLdbOperationalError as ex:
+                if len(ex.args) > 0 and ex[0] == self.db_ctrl.SERVER_HAS_GONE:
+                    continue
+                else:
+                    break
+            break
 
     def _add_project_members(self, user, project):
         """Add project members and membership relations to database and stage"""
@@ -93,10 +111,18 @@ class Crawler(object):
         user_from_db = user_from_db[0]
         if not user_from_db['contributions_processed']:
             self.status['stage']['users'].add(user['id'])
-        self.db_ctrl.add_row("membership", {
-            "user": user['id'],
-            "project": project
-        })
+        while True:
+            try:
+                self.db_ctrl.add_row("membership", {
+                    "user": user['id'],
+                    "project": project
+                })
+            except MySQLdbOperationalError as ex:
+                if len(ex.args) > 0 and ex[0] == self.db_ctrl.SERVER_HAS_GONE:
+                    continue
+                else:
+                    break
+            break
 
     def _add_user_owned_project(self, project, user):
         """Add user projects and contribuition relations to database and stage"""
@@ -108,10 +134,18 @@ class Crawler(object):
         project_from_db = project_from_db[0]
         if not project_from_db['members_processed']:
             self.status['stage']['projects'].add(project['id'])
-        self.db_ctrl.add_row("contributions", {
-            "user": user,
-            "project": project['id']
-        })
+        while True:
+            try:
+                self.db_ctrl.add_row("contributions", {
+                    "user": user,
+                    "project": project['id']
+                })
+            except MySQLdbOperationalError as ex:
+                if len(ex.args) > 0 and ex[0] == self.db_ctrl.SERVER_HAS_GONE:
+                    continue
+                else:
+                    break
+            break
 
     def _add_user_contributed_to_project(self, project, user):
         """Add user projects and contribuition relations to database and stage"""
@@ -124,10 +158,18 @@ class Crawler(object):
         project_from_db = project_from_db[0]
         if not project_from_db['members_processed']:
             self.status['stage']['projects'].add(project['id'])
-        self.db_ctrl.add_row("contributions", {
-            "user": user,
-            "project": project['id']
-        })
+        while True:
+            try:
+                self.db_ctrl.add_row("contributions", {
+                    "user": user,
+                    "project": project['id']
+                })
+            except MySQLdbOperationalError as ex:
+                if len(ex.args) > 0 and ex[0] == self.db_ctrl.SERVER_HAS_GONE:
+                    continue
+                else:
+                    break
+            break
 
     def run(self):
         """Run crawler."""
