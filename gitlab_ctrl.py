@@ -65,8 +65,13 @@ class GitlabCtrl(object):
 
     def multiple_process(self, url, callback, query={}, auth=True, *args, **kwds):
         """Call GitLab API and call callback on every part of content of every page."""
-        self.single_process(url, lambda x, *args, **kwds: list(map(partial(callback, *args, **kwds), x)),
-                            query, auth, *args, **kwds)
+        def _callback(l, *args, **kwds):
+            for x in l:
+                try:
+                    callback(x, *args, **kwds)
+                except Exception as ex:
+                    print("Callback Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr, flush=True)
+        self.single_process(url, _callback, query, auth, *args, **kwds)
 
     def process_all_projects(self, callback, query={}, auth=False, start_page=1, *args, **kwds):
         """Call callback on all projects with optional filters in `query`."""
