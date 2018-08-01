@@ -234,8 +234,11 @@ class Crawler(object):
             if self.phases.get("get_all_forks", False):
                 sources = [source['id'] for source in self.db_ctrl.get_rows_by_query("projects", "forks > %s", [0])]
                 print("\033[93mProjects with fork\033[0m: %s" % sources)
+                total = len(sources)
+                current = 0
                 for source in sources:
-                    print("\033[93mProjects\033[0m: %s" % source)
+                    current += 1
+                    print("\033[93mProject\033[0m: %s (%.2f%%)" % (source, current / total * 100))
                     self.gitlab.process_fork(self._add_fork_source, source)
 
         except KeyboardInterrupt as ex:
