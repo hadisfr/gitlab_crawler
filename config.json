@@ -1,6 +1,7 @@
 {
     "phases": {
         "contributions": false,
+        "get_all_forks": false,
         "get_all_projects": false
     },
     "db": {
@@ -46,6 +47,12 @@
                 }
             },
             {
+                "forks": {
+                    "source": "bigint not null",
+                    "destination": "bigint not null",
+                    "constraint FK_fork_source": "foreign key (source) references projects(id)",
+                    "constraint FK_fork_destination": "foreign key (destination) references projects(id)"
+                },
                 "membership": {
                     "user": "bigint not null",
                     "constraint FK_membership_user": "foreign key (user) references users(id)",
@@ -68,6 +75,7 @@
         "per_page": 100,
         "url": {
             "project_members": "https://gitlab.com/api/v4/projects/%d/users",
+            "project_forks": "https://gitlab.com/api/v4/projects/%d/forks",
             "user_projects": "https://gitlab.com/api/v4/users/%d/projects",
             "user_contributions": "https://gitlab.com/users/%s/contributed.json",
             "all_projects": "https://gitlab.com/api/v4/projects/"

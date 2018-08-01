@@ -171,6 +171,20 @@ class Crawler(object):
                     break
             break
 
+    def _add_fork_source(self, destination, source):
+        while True:
+            try:
+                self.db_ctrl.add_row("forks", {
+                    "source": source,
+                    "destination": destination['id']
+                })
+            except MySQLdbOperationalError as ex:
+                if len(ex.args) > 0 and ex[0] == self.db_ctrl.SERVER_HAS_GONE:
+                    continue
+                else:
+                    break
+            break
+
     def run(self):
         """Run crawler."""
         try:
@@ -217,6 +231,12 @@ class Crawler(object):
                             self.db_ctrl.update_rows('users', {"id": user}, {"contributions_processed": True})
                         self.status['stage']['users'] = set()
                     self.status['on_projects'] = not self.status['on_projects']
+            if self.phases.get("get_all_forks", False):
+                sources = [source['id'] for source in self.db_ctrl.get_rows_by_query("projects", "forks > %s", [0])]
+                print("\033[93mProjects with fork\033[0m: %s" % sources)
+                for source in sources:
+                    print("\033[93mProjects\033[0m: %s" % source)
+                    self.gitlab.process_fork(self._add_fork_source, source)
 
         except KeyboardInterrupt as ex:
             print("KeyboardInterrupt")

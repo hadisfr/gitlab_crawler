@@ -102,3 +102,6 @@ class GitlabCtrl(object):
                 callback(project, *args, **kwds)
         except Exception as ex:
             print("Callback Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr, flush=True)
+
+    def process_fork(self, callback, source, query={}, auth=False, *args, **kwds):
+        self.multiple_process(self.config['url']['project_forks'] % source, callback, query, auth, source)

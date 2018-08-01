@@ -117,7 +117,7 @@ class DBCtrl(object):
             return res
 
     def get_rows(self, table, values, rerais=False):
-        """Get array of rows from a table of database."""
+        """Get list of rows from a table of database."""
         res = tuple()
         cursor = self._get_cursor()
         try:
@@ -126,6 +126,27 @@ class DBCtrl(object):
                 (table, ["", " where %s" %
                  " and ".join(["%s=%%s" % key for key in values.keys()])][values is not None and values != {}]),
                 tuple(value for value in values.values())
+            )
+            self.connection.commit()
+            res = cursor.fetchall()
+        except Exception as ex:
+            self.connection.rollback()
+            if rerais:
+                raise
+            else:
+                print("Select Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr, flush=True)
+        finally:
+            cursor.close()
+            return res
+
+    def get_rows_by_query(self, table, query, values, rerais=False):
+        """Get list of rows from a table of database by query and a list of values."""
+        res = tuple()
+        cursor = self._get_cursor()
+        try:
+            cursor.execute(
+                "select * from %s%s;" % (table, ["", " where %s" % query][query is not None and query != ""]),
+                values
             )
             self.connection.commit()
             res = cursor.fetchall()
