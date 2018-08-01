@@ -96,7 +96,8 @@ class GitlabCtrl(object):
                 json.loads(self.call_api(self.config['url']['user_contributions'] % username).text)['html']
             )
             if len(projects) >= self.MAX_USER_USER_CONTRIBUTED_TO_PROJECTS:
-                print("\033[95mWarning\033[0m: Possible incomplete contributed to projects list fo user %s" % username)
+                print("\033[95mWarning\033[0m: Possible incomplete contributed to projects list fo user %s" % username,
+                      file=stderr, flush=True)
             for project_full_path in projects:
                 parsed_path = project_full_path.split('/')
                 project = {

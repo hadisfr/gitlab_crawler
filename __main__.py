@@ -20,7 +20,6 @@ class Crawler(object):
         self.db_ctrl = DBCtrl()
         self.gitlab = GitlabCtrl()
         self.status['stage'] = {key: set(value) for (key, value) in self.status['stage'].items()}
-        # print(self.status)
 
     def _read_configs(self):
         """Read global configurations and status"""
@@ -200,23 +199,25 @@ class Crawler(object):
                     if self.status['on_projects']:
                         if not self.status['stage']['projects']:
                             break
-                        print("\033[95mProjects on Stage\033[0m: %s" % self.status['stage']['projects'])
+                        print("\033[95mProjects on Stage\033[0m: %s" % self.status['stage']['projects'],
+                              file=stderr, flush=True)
                         for project in self.status['stage']['projects']:
                             project_from_db = self.db_ctrl.get_rows("projects", {"id": project})
                             if not len(project_from_db):
-                                print('Project with id %d not found in db.' % project, file=stderr)
+                                print('Project with id %d not found in db.' % project, file=stderr, flush=True)
                             elif project_from_db[0]['members_processed']:
                                 continue
-                            print("\033[95mProject\033[0m: %s" % project)
+                            print("\033[95mProject\033[0m: %s" % project, file=stderr, flush=True)
                             self.gitlab.process_project_members(self._add_project_members, project)
                             self.db_ctrl.update_rows('projects', {"id": project}, {"members_processed": True})
                         self.status['stage']['projects'] = set()
                     else:
                         if not self.status['stage']['users']:
                             break
-                        print("\033[95mUsers on Stage\033[0m: %s" % self.status['stage']['users'])
+                        print("\033[95mUsers on Stage\033[0m: %s" % self.status['stage']['users'],
+                              file=stderr, flush=True)
                         for user in self.status['stage']['users']:
-                            print("\033[95mUser\033[0m: %s" % user)
+                            print("\033[95mUser\033[0m: %s" % user, file=stderr, flush=True)
                             user_from_db = self.db_ctrl.get_rows("users", {"id": user})
                             if not len(user_from_db):
                                 raise ValueError('User with id %d not found in db.' % user)
@@ -233,16 +234,17 @@ class Crawler(object):
                     self.status['on_projects'] = not self.status['on_projects']
             if self.phases.get("get_all_forks", False):
                 sources = [source['id'] for source in self.db_ctrl.get_rows_by_query("projects", "forks > %s", [0])]
-                print("\033[93mProjects with fork\033[0m: %s" % sources)
+                print("\033[93mProjects with fork\033[0m: %s" % sources, file=stderr, flush=True)
                 total = len(sources)
                 current = 0
                 for source in sources:
                     current += 1
-                    print("\033[93mProject\033[0m: %s (%.2f%%)" % (source, current / total * 100))
+                    print("\033[93mProject\033[0m: %s (%.2f%%)" % (source, current / total * 100),
+                          file=stderr, flush=True)
                     self.gitlab.process_fork(self._add_fork_source, source)
 
         except KeyboardInterrupt as ex:
-            print("KeyboardInterrupt")
+            print("KeyboardInterrupt", file=stderr, flush=True)
         except Exception:
             raise
         finally:
