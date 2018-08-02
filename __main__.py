@@ -190,7 +190,7 @@ class Crawler(object):
             if self.phases.get('get_all_projects', False):
                 self.gitlab.process_all_projects(
                     self._add_project_to_db,
-                    {"archived": True},
+                    {},
                     auth=True,
                     start_page=self.status['get_all_projects_start_page']
                 )
