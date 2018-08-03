@@ -44,6 +44,7 @@ class DBCtrl(object):
         cursor = None
         while not cursor:
             try:
+                self.connection.ping(True)
                 cursor = self.connection.cursor()
                 cursor.execute("SET NAMES %s;" % self.encoding)
                 cursor.execute("SET CHARACTER SET %s;" % self.encoding)
