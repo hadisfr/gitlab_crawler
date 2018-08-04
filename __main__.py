@@ -242,7 +242,7 @@ class Crawler(object):
                     current += 1
                     print("\033[93mProject\033[0m: %s (%.2f%%)" % (source, current / total * 100),
                           file=stderr, flush=True)
-                    self.gitlab.process_fork(self._add_fork_source, source)
+                    self.gitlab.process_fork(self._add_fork_source, source, auth=True)
 
         except KeyboardInterrupt as ex:
             print("KeyboardInterrupt", file=stderr, flush=True)
