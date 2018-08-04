@@ -52,9 +52,13 @@ class GitlabCtrl(object):
         while True:
             res = self.call_api(url, query, auth)
             total_pages = int(res.headers.get('X-Total-Pages', 0))
-            print("\033[96mGET %s \033[0m %s" % (url, ["", "%d from %d%s" % (
-                query['page'], total_pages, ["", " (%.2f%%)" % (query['page'] / total_pages * 100)][percentage]
-            )][total_pages != 0]), file=stderr, flush=True)
+            if percentage:
+                percentage_str = " (%.2f%%)" % (query['page'] / total_pages * 100)
+            else:
+                percentage_str = ""
+            print("\033[96mGET %s \033[0m %s" % (url,
+                  ["", "%d from %d%s" % (query['page'], total_pages, percentage_str)][total_pages != 0]),
+                  file=stderr, flush=True)
             try:
                 callback(json.loads(res.text), *args, **kwds)
             except Exception as ex:
