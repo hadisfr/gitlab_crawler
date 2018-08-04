@@ -192,6 +192,7 @@ class Crawler(object):
                     self._add_project_to_db,
                     {},
                     auth=True,
+                    percentage=False,
                     start_page=self.status['get_all_projects_start_page']
                 )
             if self.phases.get("contributions", False):

@@ -44,7 +44,7 @@ class GitlabCtrl(object):
                 print("API returned %d for GET %s\n%s" % (
                     res.status_code, url, res.text), file=stderr, flush=True)
 
-    def single_process(self, url, callback, query={}, auth=True, *args, **kwds):
+    def single_process(self, url, callback, query={}, auth=True, percentage=False, *args, **kwds):
         """Call GitLab API and call callback on whole content of every page."""
         query['per_page'] = self.config['per_page']
         if 'page' not in query:
@@ -52,9 +52,9 @@ class GitlabCtrl(object):
         while True:
             res = self.call_api(url, query, auth)
             total_pages = int(res.headers.get('X-Total-Pages', 0))
-            print("\033[96mGET %s \033[0m %s" % (url, [
-                "", "%d from %d (%.2f%%)" % (query['page'], total_pages, query['page'] / total_pages * 100)
-            ][total_pages != 0]), file=stderr, flush=True)
+            print("\033[96mGET %s \033[0m %s" % (url, ["", "%d from %d%s" % (
+                query['page'], total_pages, ["", " (%.2f%%)" % (query['page'] / total_pages * 100)][percentage]
+            )][total_pages != 0]), file=stderr, flush=True)
             try:
                 callback(json.loads(res.text), *args, **kwds)
             except Exception as ex:
