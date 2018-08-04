@@ -51,7 +51,8 @@
                     "source": "bigint not null",
                     "destination": "bigint not null",
                     "constraint FK_fork_source": "foreign key (source) references projects(id)",
-                    "constraint FK_fork_destination": "foreign key (destination) references projects(id)"
+                    "constraint FK_fork_destination": "foreign key (destination) references projects(id)",
+                    "constraint PK_forks": "primary key(source, destination)"
                 },
                 "membership": {
                     "user": "bigint not null",
