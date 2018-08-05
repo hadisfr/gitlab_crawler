@@ -156,12 +156,12 @@ class Crawler(object):
             raise ValueError('Project %s/%s not found in db.' % (project['owner_path'], project['path']))
         project_from_db = project_from_db[0]
         if not project_from_db['members_processed']:
-            self.status['stage']['projects'].add(project['id'])
+            self.status['stage']['projects'].add(project_from_db['id'])
         while True:
             try:
                 self.db_ctrl.add_row("contributions", {
                     "user": user,
-                    "project": project['id']
+                    "project": project_from_db['id']
                 })
             except MySQLdbOperationalError as ex:
                 if len(ex.args) > 0 and ex[0] == self.db_ctrl.SERVER_HAS_GONE:
