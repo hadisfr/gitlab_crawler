@@ -209,7 +209,7 @@ class Crawler(object):
                             elif project_from_db[0]['members_processed']:
                                 continue
                             print("\033[95mProject\033[0m: %s" % project, file=stderr, flush=True)
-                            self.gitlab.process_project_members(self._add_project_members, project)
+                            self.gitlab.process_project_members(self._add_project_members, project, auth=True)
                             self.db_ctrl.update_rows('projects', {"id": project}, {"members_processed": True})
                         self.status['stage']['projects'] = set()
                     else:
@@ -224,7 +224,7 @@ class Crawler(object):
                                 raise ValueError('User with id %d not found in db.' % user)
                             elif user_from_db[0]['contributions_processed']:
                                 continue
-                            self.gitlab.process_user_owned_projects(self._add_user_owned_project, user)
+                            self.gitlab.process_user_owned_projects(self._add_user_owned_project, user, auth=True)
                             self.gitlab.process_user_contributed_to_projects(
                                 self._add_user_contributed_to_project,
                                 user_from_db[0]['username'],
