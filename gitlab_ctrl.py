@@ -50,6 +50,8 @@ class GitlabCtrl(object):
 
     def single_process(self, url, callback, query={}, auth=True, percentage=False, *args, **kwds):
         """Call GitLab API and call callback on whole content of every page."""
+        if not query or query == {}:
+            query = {}
         query['per_page'] = self.config['per_page']
         if 'page' not in query:
             query['page'] = 1
