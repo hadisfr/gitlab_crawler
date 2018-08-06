@@ -52,6 +52,18 @@ class GitlabCtrl(object):
         """Call GitLab API and call callback on whole content of every page."""
         if not query or query == {}:
             query = {}
+
+        # Handle 502 response on users/3585/projects API call
+        # See https://gitlab.com/hadi_sfr/gitlab_crawler/issues/3
+        if url == 'https://gitlab.com/api/v4/users/3585/projects':
+            with open('misc/u3585p.json') as f:
+                resjs = json.load(f)
+            try:
+                callback(resjs, *args, **kwds)
+            except Exception as ex:
+                print("Callback Error: %s\n\033[31m%s\033[0m\n" % (ex, format_exc()), file=stderr, flush=True)
+            return
+
         query['per_page'] = self.config['per_page']
         if 'page' not in query:
             query['page'] = 1
