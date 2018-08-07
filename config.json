@@ -75,7 +75,7 @@
         "token": "DUzYFUYm_7yfv_DtkdsV",
         "per_page": 100,
         "url": {
-            "project_members": "https://gitlab.com/api/v4/projects/%d/users",
+            "project_members": "https://gitlab.com/api/v4/projects/%d/members",
             "project_forks": "https://gitlab.com/api/v4/projects/%d/forks",
             "user_projects": "https://gitlab.com/api/v4/users/%d/projects",
             "user_contributions": "https://gitlab.com/users/%s/contributed.json",
