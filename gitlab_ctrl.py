@@ -128,8 +128,10 @@ class GitlabCtrl(object):
         if not owned_by_user:
             groups = owner_path.split("/")
             for group in ["/".join(groups[:i + 1]) for i in range(len(groups))]:
-                self.process_group_members(callback, self._get_group_id_by_path(group), group,
-                                           query, auth, project=project_id, *args, **kwds)
+                group_id = self._get_group_id_by_path(group)
+                if not group_id:
+                    continue
+                self.process_group_members(callback, group_id, group, query, auth, project=project_id, *args, **kwds)
 
     def process_user_owned_projects(self, callback, user_id, query={}, auth=False, *args, **kwds):
         """Call callback on every project owned by user found by id"""
