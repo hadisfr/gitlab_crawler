@@ -100,7 +100,7 @@ class Crawler(object):
                     break
             break
 
-    def _add_project_members(self, user, project):
+    def _add_project_members(self, user, project, from_group=None):
         """Add project members and membership relations to database and stage"""
         user_from_db = self.db_ctrl.get_rows("users", {"id": user['id']})
         if not len(user_from_db):
@@ -114,6 +114,7 @@ class Crawler(object):
             try:
                 self.db_ctrl.add_row("membership", {
                     "user": user['id'],
+                    "from_group": from_group,
                     "project": project
                 })
             except MySQLdbOperationalError as ex:
@@ -208,8 +209,15 @@ class Crawler(object):
                                 print('Project with id %d not found in db.' % project, file=stderr, flush=True)
                             elif project_from_db[0]['members_processed']:
                                 continue
+                            project_from_db = project_from_db[0]
                             print("\033[95mProject\033[0m: %s" % project, file=stderr, flush=True)
-                            self.gitlab.process_project_members(self._add_project_members, project, auth=True)
+                            self.gitlab.process_project_members(
+                                self._add_project_members,
+                                project,
+                                project_from_db['owner_path'],
+                                project_from_db['owned_by_user'],
+                                auth=True
+                            )
                             self.db_ctrl.update_rows('projects', {"id": project}, {"members_processed": True})
                         self.status['stage']['projects'] = set()
                     else:
@@ -224,10 +232,11 @@ class Crawler(object):
                                 raise ValueError('User with id %d not found in db.' % user)
                             elif user_from_db[0]['contributions_processed']:
                                 continue
+                            user_from_db = user_from_db[0]
                             self.gitlab.process_user_owned_projects(self._add_user_owned_project, user, auth=True)
                             self.gitlab.process_user_contributed_to_projects(
                                 self._add_user_contributed_to_project,
-                                user_from_db[0]['username'],
+                                user_from_db['username'],
                                 user=user
                             )
                             self.db_ctrl.update_rows('users', {"id": user}, {"contributions_processed": True})

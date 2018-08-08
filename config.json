@@ -58,6 +58,7 @@
                     "user": "bigint not null",
                     "constraint FK_membership_user": "foreign key (user) references users(id)",
                     "project": "bigint not null",
+                    "from_group": "text",
                     "constraint FK_membership_project": "foreign key (project) references projects(id)",
                     "constraint PK_membership": "primary key(user, project)"
                 },
@@ -76,9 +77,11 @@
         "per_page": 100,
         "url": {
             "project_members": "https://gitlab.com/api/v4/projects/%d/members",
+            "group_members": "https://gitlab.com/api/v4/groups/%d/members",
             "project_forks": "https://gitlab.com/api/v4/projects/%d/forks",
             "user_projects": "https://gitlab.com/api/v4/users/%d/projects",
             "user_contributions": "https://gitlab.com/users/%s/contributed.json",
+            "group": "https://gitlab.com/%s",
             "all_projects": "https://gitlab.com/api/v4/projects/"
         }
     },

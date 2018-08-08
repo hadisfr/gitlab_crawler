@@ -19,7 +19,8 @@ class GitlabCtrl(object):
         except Exception as ex:
             print("Config file (%s) error: %s\n" % (self.config_file, ex), file=stderr, flush=True)
             exit(1)
-        self.project_path_from_dom_regex = re.compile('<a class="project" href="([^"]*)">')
+        self._project_path_from_dom_regex = re.compile('<a class="project" href="([^"]*)">')
+        self._project_id_from_dom_regex = re.compile('<input type="hidden" name="group_id" id="group_id" value="([^"]*)" .* />')
 
     def call_api(self, url, query={}, auth=True):
         """Call GitLab API and return raw result."""
@@ -104,10 +105,31 @@ class GitlabCtrl(object):
         query['page'] = start_page
         self.multiple_process(self.config['url']['all_projects'], callback, query, auth, *args, **kwds)
 
-    def process_project_members(self, callback, project_id, query={}, auth=False, *args, **kwds):
+    def _process_project_pure_members(self, callback, project_id, query={}, auth=False, *args, **kwds):
         """Call callback on every member of project found by id"""
         self.multiple_process(self.config['url']['project_members'] % project_id, callback, query, auth,
-                              *args, **kwds, project=project_id)
+                              *args, **kwds, project=project_id, from_group=None)
+
+    def _get_group_id_by_path(self, path):
+        """Get ID of group or subgroup using its path."""
+        try:
+            return int(self._project_id_from_dom_regex.findall(self.call_api(self.config['url']['group'] % path).text)[0])
+        except IndexError as ex:
+            print("Project ID  of %s not found." % path, file=stderr, flush=True)
+
+    def process_group_members(self, callback, group_id, group_path, query={}, auth=False, *args, **kwds):
+        """Call callback on every member of group or subgroup found by id"""
+        self.multiple_process(self.config['url']['group_members'] % group_id, callback, query, auth,
+                              *args, **kwds, from_group=group_path)
+
+    def process_project_members(self, callback, project_id, owner_path, owned_by_user, query={}, auth=False, *args, **kwds):
+        """Call callback on every member of project found by id"""
+        self._process_project_pure_members(callback, project_id, query, auth, *args, **kwds)
+        if not owned_by_user:
+            groups = owner_path.split("/")
+            for group in ["/".join(groups[:i + 1]) for i in range(len(groups))]:
+                self.process_group_members(callback, self._get_group_id_by_path(group), group,
+                                           query, auth, project=project_id, *args, **kwds)
 
     def process_user_owned_projects(self, callback, user_id, query={}, auth=False, *args, **kwds):
         """Call callback on every project owned by user found by id"""
@@ -117,7 +139,7 @@ class GitlabCtrl(object):
     def process_user_contributed_to_projects(self, callback, username, auth=False, *args, **kwds):
         """Call callable on every project user has contributed to"""
         try:
-            projects = self.project_path_from_dom_regex.findall(
+            projects = self._project_path_from_dom_regex.findall(
                 json.loads(self.call_api(self.config['url']['user_contributions'] % username).text)['html']
             )
             if len(projects) >= self.MAX_USER_USER_CONTRIBUTED_TO_PROJECTS:
