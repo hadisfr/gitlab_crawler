@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+import os.path
 from sys import stderr
 from pathlib import Path
 
@@ -13,7 +14,7 @@ from gitlab_ctrl import GitlabCtrl
 class Crawler(object):
     """Main crawler class"""
     status_file = str(Path.home()) + "/.glc"
-    config_file = "config.json"
+    config_file = os.path.join(os.path.dirname(__file__), "config.json")
 
     def __init__(self):
         self._read_configs()

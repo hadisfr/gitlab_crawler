@@ -1,5 +1,6 @@
 import json
 import re
+import os.path
 from sys import stderr
 from traceback import format_exc
 from datetime import datetime
@@ -9,7 +10,7 @@ import requests
 
 class GitlabCtrl(object):
     """GitLab Controller"""
-    config_file = 'config.json'
+    config_file = os.path.join(os.path.dirname(__file__), "config.json")
     MAX_USER_USER_CONTRIBUTED_TO_PROJECTS = 20
 
     def __init__(self):
