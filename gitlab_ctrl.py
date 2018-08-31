@@ -11,7 +11,6 @@ import requests
 class GitlabCtrl(object):
     """GitLab Controller"""
     config_file = os.path.join(os.path.dirname(__file__), "config.json")
-    MAX_USER_USER_CONTRIBUTED_TO_PROJECTS = 20
 
     def __init__(self):
         try:
@@ -145,9 +144,6 @@ class GitlabCtrl(object):
             projects = self._project_path_from_dom_regex.findall(
                 json.loads(self.call_api(self.config['url']['user_contributions'] % username).text)['html']
             )
-            if len(projects) >= self.MAX_USER_USER_CONTRIBUTED_TO_PROJECTS:
-                print("\033[95mWarning\033[0m: Possible incomplete contributed to projects list fo user %s" % username,
-                      file=stderr, flush=True)
             for project_full_path in projects:
                 parsed_path = project_full_path.split('/')
                 project = {
