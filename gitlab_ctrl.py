@@ -107,7 +107,7 @@ class GitlabCtrl(object):
         self.multiple_process(self.config['url']['all_projects'], callback, query, auth, *args, **kwds)
 
     def _process_project_pure_members(self, callback, project_id, query={}, auth=False, *args, **kwds):
-        """Call callback on every member of project found by id"""
+        """Call callback on every member of project found by id."""
         self.multiple_process(self.config['url']['project_members'] % project_id, callback, query, auth,
                               *args, **kwds, project=project_id, from_group=None)
 
@@ -119,12 +119,12 @@ class GitlabCtrl(object):
             print("Project ID  of %s not found." % path, file=stderr, flush=True)
 
     def process_group_members(self, callback, group_id, group_path, query={}, auth=False, *args, **kwds):
-        """Call callback on every member of group or subgroup found by id"""
+        """Call callback on every member of group or subgroup found by id."""
         self.multiple_process(self.config['url']['group_members'] % group_id, callback, query, auth,
                               *args, **kwds, from_group=group_path)
 
     def process_project_members(self, callback, project_id, owner_path, owned_by_user, query={}, auth=False, *args, **kwds):
-        """Call callback on every member of project found by id"""
+        """Call callback on every member of project found by id."""
         self._process_project_pure_members(callback, project_id, query, auth, *args, **kwds)
         if not owned_by_user:
             groups = owner_path.split("/")
@@ -135,12 +135,12 @@ class GitlabCtrl(object):
                 self.process_group_members(callback, group_id, group, query, auth, project=project_id, *args, **kwds)
 
     def process_user_owned_projects(self, callback, user_id, query={}, auth=False, *args, **kwds):
-        """Call callback on every project owned by user found by id"""
+        """Call callback on every project owned by user found by id."""
         self.multiple_process(self.config['url']['user_projects'] % user_id, callback, query, auth,
                               *args, **kwds, user=user_id)
 
     def process_user_contributed_to_projects(self, callback, username, auth=False, *args, **kwds):
-        """Call callable on every project user has contributed to"""
+        """Call callable on every project user has contributed to."""
         try:
             projects = self._project_path_from_dom_regex.findall(
                 json.loads(self.call_api(self.config['url']['user_contributions'] % username).text)['html']

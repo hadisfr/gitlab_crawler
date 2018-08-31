@@ -23,7 +23,7 @@ class Crawler(object):
         self.status['stage'] = {key: set(value) for (key, value) in self.status['stage'].items()}
 
     def _read_configs(self):
-        """Read global configurations and status"""
+        """Read global configurations and status."""
         self.status = {}
         try:
             with open(self.status_file) as f:
@@ -102,7 +102,7 @@ class Crawler(object):
             break
 
     def _add_project_members(self, user, project, from_group=None):
-        """Add project members and membership relations to database and stage"""
+        """Add project members and membership relations to database and stage."""
         user_from_db = self.db_ctrl.get_rows("users", {"id": user['id']})
         if not len(user_from_db):
             self._add_user_to_db(user)
@@ -126,7 +126,7 @@ class Crawler(object):
             break
 
     def _add_user_owned_project(self, project, user):
-        """Add user projects and contribuition relations to database and stage"""
+        """Add user projects and contribuition relations to database and stage."""
         project_from_db = self.db_ctrl.get_rows("projects", {"id": project['id']})
         if not len(project_from_db):
             self._add_project_to_db(project)
@@ -149,7 +149,7 @@ class Crawler(object):
             break
 
     def _add_user_contributed_to_project(self, project, user):
-        """Add user projects and contribuition relations to database and stage"""
+        """Add user projects and contribuition relations to database and stage."""
         project_from_db = self.db_ctrl.get_rows(
             "projects",
             {"owner_path": project['owner_path'], "path": project['path']}
