@@ -141,9 +141,9 @@ class GitlabCtrl(object):
     def process_user_contributed_to_projects(self, callback, username, auth=False, *args, **kwds):
         """Call callable on every project user has contributed to."""
         try:
-            projects = self._project_path_from_dom_regex.findall(
-                json.loads(self.call_api(self.config['url']['user_contributions'] % username).text)['html']
-            )
+            url = self.config['url']['user_contributions'] % username
+            print("\033[96mGET %s \033[0m %s" % (url), file=stderr, flush=True)
+            projects = self._project_path_from_dom_regex.findall(json.loads(self.call_api(url).text)['html'])
             for project_full_path in projects:
                 parsed_path = project_full_path.split('/')
                 project = {
